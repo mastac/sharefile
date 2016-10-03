@@ -166,12 +166,19 @@ class FileEntriesController extends Controller
     {
         $entry = FileEntry::find($id);
 
-        Storage::disk('local')->delete(
-            Auth::user()->id . DIRECTORY_SEPARATOR . $entry->shorturl . '.' . $entry->ext
-        );
+        if ($entry->user->id == Auth::user()->id) {
 
-        FileEntry::destroy($id);
+            Storage::disk('local')->delete(
+                Auth::user()->id . DIRECTORY_SEPARATOR . $entry->shorturl . '.' . $entry->ext
+            );
 
-        return redirect('myfiles');
+            FileEntry::destroy($id);
+
+            return redirect('myfiles')->with('message', 'File has been deleted');
+
+        } else {
+            return redirect('myfiles')->with('error', 'You have not permission to delete this file');
+        }
+
     }
 }
